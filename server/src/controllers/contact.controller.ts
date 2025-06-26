@@ -13,7 +13,7 @@ export const setWebSocketService = (service: WebSocketService) => {
 
 export const createContact = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id;
+        const userId = (req as any).user.userId;
         const contactData: CreateContactRequest = req.body;
         
         if (!contactData.name) {
@@ -58,8 +58,8 @@ export const createContact = async (req: Request, res: Response) => {
 
 export const getContacts = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id;
-        
+        const userId = (req as any).user.userId;
+        console.log(req.user);
         const [contacts] = await pool.execute(
             'SELECT * FROM contacts WHERE user_id = ? ORDER BY name ASC',
             [userId]
@@ -81,7 +81,7 @@ export const getContacts = async (req: Request, res: Response) => {
 
 export const getContactById = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id;
+        const userId = (req as any).user.userId;
         const contactId = req.params.id;
 
         const [contacts] = await pool.execute(
@@ -112,7 +112,7 @@ export const getContactById = async (req: Request, res: Response) => {
 
 export const updateContact = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id;
+        const userId = (req as any).user.userId;
         const contactId = req.params.id;
         const updateData: UpdateContactRequest = req.body;
 
@@ -197,7 +197,7 @@ export const updateContact = async (req: Request, res: Response) => {
 
 export const deleteContact = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id;
+        const userId = (req as any).user.userId;
         const contactId = req.params.id;
 
         // Check if contact exists and belongs to user

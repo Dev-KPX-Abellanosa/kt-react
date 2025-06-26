@@ -1,41 +1,46 @@
-# Contact Manager with Real-time Updates
+# Contact Manager with Authentication
 
-A full-stack contact management application built with React, TypeScript, Express, MySQL, and WebSocket for real-time updates.
+A full-stack contact management application with user authentication built with React, TypeScript, Express, and MySQL.
 
 ## Features
 
-- **User Authentication**: JWT-based authentication system
-- **Contact Management**: Full CRUD operations for contacts
-- **Real-time Updates**: Live updates using WebSocket (Socket.IO)
-- **Search Functionality**: Search contacts by name, email, or phone
-- **Responsive Design**: Modern UI with Tailwind CSS
-- **Type Safety**: Full TypeScript support
+- **User Authentication**: Register and login with JWT tokens
+- **Contact Management**: Create, read, update, and delete contacts
+- **Real-time Updates**: WebSocket integration for live contact updates
+- **Protected Routes**: Authentication-based route protection
+- **Modern UI**: Clean, responsive design with Tailwind CSS
 
 ## Tech Stack
 
-### Backend
-- Node.js with Express
-- TypeScript
-- MySQL2 for database operations
-- Socket.IO for WebSocket functionality
-- JWT for authentication
-- bcryptjs for password hashing
-
 ### Frontend
-- React 19 with TypeScript
+- React 18 with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
 - React Router for navigation
 - React Hook Form with Zod validation
-- Socket.IO Client for real-time updates
-- Tailwind CSS for styling
+- Socket.io client for real-time features
+
+### Backend
+- Node.js with Express and TypeScript
+- MySQL database with connection pooling
+- JWT for authentication
+- bcryptjs for password hashing
+- Socket.io for WebSocket support
+- CORS enabled for cross-origin requests
 
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js (v18 or higher)
+- Node.js (v16 or higher)
 - MySQL database
-- Bun (optional, for faster package management)
+- npm or bun package manager
 
-### Backend Setup
+### Database Setup
+
+1. Create a MySQL database named `contacts_db`
+2. Run the SQL schema from `server/src/database/schema.sql`
+
+### Server Setup
 
 1. Navigate to the server directory:
    ```bash
@@ -49,25 +54,29 @@ A full-stack contact management application built with React, TypeScript, Expres
 
 3. Create a `.env` file in the server directory:
    ```env
-   PORT=3000
+   # Database Configuration
    DB_HOST=localhost
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=your_database_name
-   JWT_SECRET=your_jwt_secret_key
-   CLIENT_URL=http://localhost:5173
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_NAME=contacts_db
+   DB_PORT=3306
+
+   # JWT Configuration
+   JWT_SECRET=your-super-secret-key-change-this-in-production
+   JWT_EXPIRES_IN=24h
+
+   # Server Configuration
+   PORT=3000
    ```
 
-4. Set up the database:
-   - Create a MySQL database
-   - Run the schema from `src/database/schema.sql`
-
-5. Start the development server:
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-### Frontend Setup
+The server will start on `http://localhost:3000`
+
+### Client Setup
 
 1. Navigate to the client directory:
    ```bash
@@ -89,50 +98,66 @@ A full-stack contact management application built with React, TypeScript, Expres
    npm run dev
    ```
 
+The client will start on `http://localhost:5173`
+
+## Usage
+
+1. Open `http://localhost:5173` in your browser
+2. Register a new account or login with existing credentials
+3. Navigate to the Contacts page to manage your contacts
+4. Use the navigation to switch between Home and Contacts
+
 ## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/login` - Login user
 
-### Contacts
-- `GET /api/contacts` - Get all contacts for authenticated user
-- `GET /api/contacts/:id` - Get specific contact
-- `POST /api/contacts` - Create new contact
-- `PUT /api/contacts/:id` - Update contact
-- `DELETE /api/contacts/:id` - Delete contact
+### Contacts (Protected)
+- `GET /api/contacts` - Get all contacts for the authenticated user
+- `GET /api/contacts/:id` - Get a specific contact
+- `POST /api/contacts` - Create a new contact
+- `PUT /api/contacts/:id` - Update a contact
+- `DELETE /api/contacts/:id` - Delete a contact
 
-## WebSocket Events
+## Project Structure
 
-### Client to Server
-- Connection with JWT token for authentication
-
-### Server to Client
-- `contact_update` - Real-time contact updates (create/update/delete)
-
-## Features in Detail
-
-### Real-time Updates
-The application uses WebSocket connections to provide real-time updates:
-- When a contact is created, updated, or deleted, all connected clients receive immediate updates
-- Each user only receives updates for their own contacts
-- WebSocket connections are authenticated using JWT tokens
-
-### Contact Management
-- **Create**: Add new contacts with name, email, phone, address, and notes
-- **Read**: View contact list with search functionality
-- **Update**: Edit existing contact information
-- **Delete**: Remove contacts with confirmation
-
-### Search Functionality
-- Search contacts by name, email, or phone number
-- Real-time filtering as you type
-- Case-insensitive search
+```
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── apps/          # Application components
+│   │   │   ├── (pages)/   # Page components
+│   │   │   ├── components/ # Reusable components
+│   │   │   └── layouts/   # Layout components
+│   │   ├── libs/          # Utilities and hooks
+│   │   ├── services/      # API services
+│   │   └── types/         # TypeScript types
+│   └── package.json
+├── server/                # Express backend
+│   ├── src/
+│   │   ├── config/        # Configuration files
+│   │   ├── controllers/   # Route controllers
+│   │   ├── database/      # Database schema
+│   │   ├── middleware/    # Express middleware
+│   │   ├── routes/        # API routes
+│   │   ├── services/      # Business logic
+│   │   └── types/         # TypeScript types
+│   └── package.json
+└── README.md
+```
 
 ## Security Features
 
-- JWT-based authentication
 - Password hashing with bcryptjs
-- Protected routes on both frontend and backend
-- User-specific data isolation
-- Input validation and sanitization 
+- JWT token-based authentication
+- Protected API routes
+- Input validation with Zod
+- CORS configuration
+- SQL injection prevention with parameterized queries
+
+## Development
+
+- The server uses TypeScript with hot reloading
+- The client uses Vite for fast development builds
+- Both frontend and backend have proper TypeScript configurations
+- ESLint is configured for code quality 

@@ -2,6 +2,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import contactRoutes from './routes/contact.routes';
 import { authenticateToken } from './middleware/auth.middleware';
@@ -19,7 +21,13 @@ const port = process.env.PORT || 3000;
 const wsService = new WebSocketService(server);
 setWebSocketService(wsService);
 
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173', // Vite dev server
+    credentials: true // Important for cookies
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);

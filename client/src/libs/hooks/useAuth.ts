@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { wait } from "../utils/wait";
+import { AxiosError } from "axios";
+import { api } from "../utils/axios";
 
 export interface User {
     id: string;
@@ -8,7 +9,10 @@ export interface User {
     name: string;
 }
 
-const TOKEN_KEY = "auth_token";
+export interface AuthResponse {
+    token: string;
+    user: User;
+}
 
 export const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,72 +24,74 @@ export const useAuth = () => {
     const login = async (email: string, password: string) => {
         try {
             setIsLoading(true);
-            await wait(1000);
             setError(null);
             
-    
-            if (email === "admin@gmail.com" && password === "administrator") {
-                const token = "1234567890"; 
-                localStorage.setItem(TOKEN_KEY, token);
-                
-                const userData = {
-                    id: "1",
-                    email: "admin@gmail.com",
-                    name: "Admin",
-                };
-                
-                setUser(userData);
-                setIsAuthenticated(true);
-                navigate("/");
-            } else {
-                setError("Invalid email or password");
-            }
+            const response = await api.post('/auth/login', { email, password });
+            const authResponse: AuthResponse = response.data;
+            
+            setUser(authResponse.user);
+            setIsAuthenticated(true);
+            navigate("/");
         } catch (err) {
-            setError("An error occurred during login");
+            const axiosError = err as AxiosError<{ message: string }>;
+            const errorMessage = axiosError.response?.data?.message || "An error occurred during login";
+            setError(errorMessage);
             console.error("Login error:", err);
         } finally {
             setIsLoading(false);
         }
     };
 
-    useEffect(() => {
-        const validateToken = async () => {
-            try {
-                await wait(1000);
-                const token = localStorage.getItem(TOKEN_KEY);
-                if (!token) {
-                    setIsLoading(false);
-                    return;
-                }
-
-                // TODO: Replace with actual API call to validate token
-                // For now, we'll just check if the token exists
-                const userData = {
-                    id: "1",
-                    email: "admin@gmail.com",
-                    name: "Admin",
-                };
-                
-                setUser(userData);
-                setIsAuthenticated(true);
-            } catch (err) {
-                console.error("Token validation error:", err);
-                localStorage.removeItem(TOKEN_KEY);
-                setError("Session expired. Please login again.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        validateToken();
-    }, []);
-
-    const logout = () => {
-        localStorage.removeItem(TOKEN_KEY);
-        setIsAuthenticated(false);
-        setUser(null);
-        navigate("/login");
+    const register = async (email: string, password: string, name: string) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            
+            const response = await api.post('/auth/register', { email, password, name });
+            const authResponse: AuthResponse = response.data;
+            
+            setUser(authResponse.user);
+            setIsAuthenticated(true);
+            navigate("/");
+        } catch (err) {
+            const axiosError = err as AxiosError<{ message: string }>;
+            const errorMessage = axiosError.response?.data?.message || "An error occurred during registration";
+            setError(errorMessage);
+            console.error("Registration error:", err);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    const logout = async () => {
+        try {
+            await api.post('/auth/logout');
+        } catch (err) {
+            console.error("Logout error:", err);
+        } finally {
+            setIsAuthenticated(false);
+            setUser(null);
+            navigate("/login");
+        }
+    };
+
+    const checkAuth = async () => {
+        try {
+            const response = await api.get('/auth/me');
+            const userData = response.data.user;
+            setUser(userData);
+            setIsAuthenticated(true);
+        } catch {
+            setIsAuthenticated(false);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
     return {
         isAuthenticated,
@@ -94,6 +100,8 @@ export const useAuth = () => {
         error,
         setError,
         login,
+        register,
         logout,
+        checkAuth,
     };
 };

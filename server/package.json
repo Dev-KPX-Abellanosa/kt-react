@@ -5,7 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/app.js",
-    "dev": "bun run src/app.ts"
+    "dev": "bun run --watch src/app.ts",
+    "init-db": "bun run src/config/init-database.ts",
+    "reset-db": "bun run src/config/reset-database.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -13,9 +16,13 @@
   "description": "",
   "dependencies": {
     "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/uuid": "^10.0.0",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

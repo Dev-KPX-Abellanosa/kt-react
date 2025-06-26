@@ -5,10 +5,10 @@ import { LoginCredentials, RegisterCredentials, AuthResponse, User } from '../ty
 import pool from '../config/database';
 import { v4 as uuidv4 } from 'uuid';
 
-export const register = async (req: Request<{}, {}, RegisterCredentials>, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password, name } = req.body;
-
+        console.log("asds")
         // Check if user already exists
         const [existingUsers] = await pool.execute(
             'SELECT * FROM users WHERE email = ?',
@@ -16,7 +16,8 @@ export const register = async (req: Request<{}, {}, RegisterCredentials>, res: R
         );
 
         if (Array.isArray(existingUsers) && existingUsers.length > 0) {
-            return res.status(400).json({ message: 'User already exists' });
+            res.status(400).json({ message: 'User already exists' });
+            return;
         }
 
         // Hash password
@@ -31,14 +32,24 @@ export const register = async (req: Request<{}, {}, RegisterCredentials>, res: R
         );
 
         // Generate JWT
-        const token = jwt.sign(
+        const jwtSecret = process.env.JWT_SECRET || 'your-super-secret-key-change-this-in-production';
+        const token = (jwt.sign as any)(
             { userId, email },
-            process.env.JWT_SECRET || 'your-super-secret-key-change-this-in-production',
+            jwtSecret,
             { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
         );
 
+        // Set secure HTTP-only cookie
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            path: '/'
+        });
+
         const response: AuthResponse = {
-            token,
+            token: '', // Don't send token in response body
             user: {
                 id: userId,
                 email,
@@ -53,7 +64,7 @@ export const register = async (req: Request<{}, {}, RegisterCredentials>, res: R
     }
 };
 
-export const login = async (req: Request<{}, {}, LoginCredentials>, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
 
@@ -66,24 +77,36 @@ export const login = async (req: Request<{}, {}, LoginCredentials>, res: Respons
         const user = Array.isArray(users) ? users[0] as User : null;
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            res.status(400).json({ message: 'Invalid credentials' });
+            return;
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            res.status(400).json({ message: 'Invalid credentials' });
+            return;
         }
 
         // Generate JWT
-        const token = jwt.sign(
+        const jwtSecret = process.env.JWT_SECRET || 'your-super-secret-key-change-this-in-production';
+        const token = (jwt.sign as any)(
             { userId: user.id, email: user.email },
-            process.env.JWT_SECRET || 'your-super-secret-key-change-this-in-production',
+            jwtSecret,
             { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
         );
 
+        // Set secure HTTP-only cookie
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            path: '/'
+        });
+
         const response: AuthResponse = {
-            token,
+            token: '', // Don't send token in response body
             user: {
                 id: user.id,
                 email: user.email,
@@ -94,6 +117,39 @@ export const login = async (req: Request<{}, {}, LoginCredentials>, res: Respons
         res.json(response);
     } catch (error) {
         console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // Clear the auth cookie
+        res.clearCookie('auth_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/'
+        });
+
+        res.json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const me = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // User data is already available from auth middleware
+        const user = req.user;
+        if (!user) {
+            res.status(401).json({ message: 'Not authenticated' });
+            return;
+        }
+
+        res.json({ user });
+    } catch (error) {
+        console.error('Me error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 }; 

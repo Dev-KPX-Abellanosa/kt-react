@@ -8,7 +8,7 @@ export class WebSocketService {
     connect(token: string) {
         this.token = token;
         
-        this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000', {
+        this.socket = io(import.meta.env.API_URL || 'http://localhost:4000', {
             auth: {
                 token: token
             }
