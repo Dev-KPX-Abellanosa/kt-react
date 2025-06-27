@@ -8,8 +8,6 @@ export const useContacts = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-
-
     // Load initial contacts
     const loadContacts = useCallback(async () => {
         try {
@@ -26,12 +24,14 @@ export const useContacts = () => {
 
     // WebSocket event handler
     const handleContactUpdate = useCallback((event: WebSocketContactEvent) => {
+        console.log('WebSocket event:', event);
+        
         setContacts(prevContacts => {
             switch (event.type) {
                 case 'contact_created':
                     return [...prevContacts, event.contact];
                 case 'contact_updated':
-                    return prevContacts.map(contact =>
+                    return prevContacts.map(contact => 
                         contact.id === event.contact.id ? event.contact : contact
                     );
                 case 'contact_deleted':
@@ -40,7 +40,7 @@ export const useContacts = () => {
                     return prevContacts;
             }
         });
-    }, [setContacts]);
+    }, []);
 
     // CRUD operations
     const createContact = useCallback(async (contactData: CreateContactRequest) => {
@@ -86,8 +86,10 @@ export const useContacts = () => {
         // Load contacts
         loadContacts();
 
-
-    }, [loadContacts, handleContactUpdate]);
+        return () => {
+            wsService.offContactUpdate();
+        };
+    }, []); // Empty dependency array to run only once
 
     return {
         contacts,

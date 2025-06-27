@@ -32,7 +32,7 @@ export const useAuth = () => {
             setUser(authResponse.user);
             setIsAuthenticated(true);
             
-            navigate("/");
+            window.location.href = "/";
         } catch (err) {
             const axiosError = err as AxiosError<{ message: string }>;
             const errorMessage = axiosError.response?.data?.message || "An error occurred during login";
@@ -54,7 +54,7 @@ export const useAuth = () => {
             setUser(authResponse.user);
             setIsAuthenticated(true);
             
-            navigate("/");
+            window.location.href = "/";
         } catch (err) {
             const axiosError = err as AxiosError<{ message: string }>;
             const errorMessage = axiosError.response?.data?.message || "An error occurred during registration";

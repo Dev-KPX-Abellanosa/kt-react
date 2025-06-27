@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Contact } from '../../types/contact.types';
 import { tw } from '../../libs/tw';
 
@@ -19,11 +19,6 @@ export const ContactList: React.FC<ContactListProps> = ({
 }) => {
 
     const [searchTerm, setSearchTerm] = useState('');
-
-
-    useEffect(() => {
-        console.log(contacts)
-    }, [contacts]);
 
     const filteredContacts = useMemo(() => contacts.filter(contact =>
         contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,7 +65,7 @@ export const ContactList: React.FC<ContactListProps> = ({
                     <div className="divide-y divide-gray-200">
                         {filteredContacts.map((contact) => (
                             <ContactItem
-                                key={contact.id}
+                                key={"contact-"+contact.id}
                                 contact={contact}
                                 isSelected={contact.id === selectedContactId}
                                 onClick={() => onContactSelect?.(contact)}

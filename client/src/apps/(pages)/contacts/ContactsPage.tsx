@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ContactList } from '../../components/ContactList';
 import { ContactDetail } from '../../components/ContactDetail';
 import { ContactForm } from '../../components/ContactForm';
@@ -9,7 +9,7 @@ export default function ContactsPage() {
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
-    const { createContact, contacts, error, loading } = useContacts();
+    const { createContact, contacts, error, loading, deleteContact, updateContact } = useContacts();
 
     const handleContactSelect = (contact: Contact) => {
         setSelectedContact(contact);
@@ -26,6 +26,14 @@ export default function ContactsPage() {
         } finally {
             setFormLoading(false);
         }
+    };
+
+    const handleDeleteContact = async (id: string) => {
+        await deleteContact(id);
+    };
+
+    const handleUpdateContact = async (id: string, data: UpdateContactRequest) => {
+        await updateContact(id, data);
     };
 
     const handleCloseDetail = () => {
@@ -54,7 +62,7 @@ export default function ContactsPage() {
                         </button>
                     </div>
                 </div>
-                
+
                 <ContactList
                     onContactSelect={handleContactSelect}
                     selectedContactId={selectedContact?.id}
@@ -92,6 +100,8 @@ export default function ContactsPage() {
                         <ContactDetail
                             contact={selectedContact}
                             onClose={handleCloseDetail}
+                            onDelete={handleDeleteContact}
+                            onUpdate={handleUpdateContact}
                         />
                     </div>
                 ) : (

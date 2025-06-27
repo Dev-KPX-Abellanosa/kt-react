@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import type { Contact, UpdateContactRequest } from '../../types/contact.types';
 import { ContactForm } from './ContactForm';
-import { useContacts } from '../../libs/hooks/useContacts';
+
 
 interface ContactDetailProps {
     contact: Contact;
     onClose: () => void;
+    onDelete: (id: string) => Promise<void>;
+    onUpdate: (id: string, data: UpdateContactRequest) => Promise<void>;
 }
 
-export const ContactDetail: React.FC<ContactDetailProps> = ({ contact, onClose }) => {
+export const ContactDetail: React.FC<ContactDetailProps> = ({ contact, onClose, onDelete, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { updateContact, deleteContact } = useContacts();
+
 
     const handleUpdate = async (data: UpdateContactRequest) => {
         try {
             setLoading(true);
-            await updateContact(contact.id, data);
+            await onUpdate(contact.id, data);
             setIsEditing(false);
         } catch (error) {
             console.error('Failed to update contact:', error);
@@ -29,7 +31,7 @@ export const ContactDetail: React.FC<ContactDetailProps> = ({ contact, onClose }
         if (window.confirm('Are you sure you want to delete this contact?')) {
             try {
                 setLoading(true);
-                await deleteContact(contact.id);
+                await onDelete(contact.id);
                 onClose();
             } catch (error) {
                 console.error('Failed to delete contact:', error);
