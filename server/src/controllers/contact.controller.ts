@@ -38,7 +38,14 @@ export const createContact = async (req: Request, res: Response) => {
 
         // Emit WebSocket event for real-time update
         if (wsService) {
+            console.log('=== WEBSOCKET EMISSION START ===');
+            console.log('Emitting WebSocket contact_created event for user:', userId);
+            console.log('Contact data:', contact);
+            console.log('WebSocket service available:', !!wsService);
             wsService.emitContactCreated(contact, userId);
+            console.log('=== WEBSOCKET EMISSION END ===');
+        } else {
+            console.log('❌ WebSocket service not available for contact creation');
         }
 
         res.status(201).json({
@@ -59,7 +66,6 @@ export const createContact = async (req: Request, res: Response) => {
 export const getContacts = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.userId;
-        console.log(req.user);
         const [contacts] = await pool.execute(
             'SELECT * FROM contacts WHERE user_id = ? ORDER BY name ASC',
             [userId]

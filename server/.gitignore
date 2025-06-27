@@ -8,3 +8,4 @@
 /views
 /config
 /data
+.env

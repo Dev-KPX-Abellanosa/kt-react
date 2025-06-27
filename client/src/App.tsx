@@ -5,18 +5,8 @@ import HomePage from "./apps/(pages)/home/HomePage";
 import ContactsPage from "./apps/(pages)/contacts/ContactsPage";
 import HomeLayout from "./apps/layouts/HomeLayout";
 import ProtectedRoute from "./apps/components/protected-route";
-import { useAuth } from "./libs/hooks/useAuth";
 
 export default function App() {
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <Routes>

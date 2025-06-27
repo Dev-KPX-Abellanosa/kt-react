@@ -8,8 +8,8 @@ import type { Contact, CreateContactRequest, UpdateContactRequest } from '../../
 export default function ContactsPage() {
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const { createContact } = useContacts();
+    const [formLoading, setFormLoading] = useState(false);
+    const { createContact, contacts, error, loading } = useContacts();
 
     const handleContactSelect = (contact: Contact) => {
         setSelectedContact(contact);
@@ -18,13 +18,13 @@ export default function ContactsPage() {
 
     const handleCreateContact = async (data: CreateContactRequest) => {
         try {
-            setLoading(true);
+            setFormLoading(true);
             await createContact(data);
             setShowCreateForm(false);
         } catch (error) {
             console.error('Failed to create contact:', error);
         } finally {
-            setLoading(false);
+            setFormLoading(false);
         }
     };
 
@@ -58,6 +58,9 @@ export default function ContactsPage() {
                 <ContactList
                     onContactSelect={handleContactSelect}
                     selectedContactId={selectedContact?.id}
+                    contacts={contacts}
+                    loading={loading}
+                    error={error}
                 />
             </div>
 
@@ -80,7 +83,7 @@ export default function ContactsPage() {
                             <ContactForm
                                 onSubmit={handleCreateContact as (data: CreateContactRequest | UpdateContactRequest) => Promise<void>}
                                 onCancel={handleCloseCreateForm}
-                                loading={loading}
+                                loading={formLoading}
                             />
                         </div>
                     </div>

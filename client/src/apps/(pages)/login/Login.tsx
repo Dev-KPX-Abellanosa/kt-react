@@ -13,7 +13,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login, isLoading, error } = useAuth();
+  const { login, error, isLoading } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     defaultValues: {
       email: "",
@@ -38,34 +38,34 @@ export default function LoginPage() {
           })}>
             <div className="flex flex-col gap-2">
               <label htmlFor="email">Email</label>
-              <input 
-                className={tw("border-2 border-gray-300 rounded-md p-2", errors.email ? "border-red-500" : "")} 
-                type="email" 
-                id="email" 
-                {...register("email")} 
+              <input
+                className={tw("border-2 border-gray-300 rounded-md p-2", errors.email ? "border-red-500" : "")}
+                type="email"
+                id="email"
+                {...register("email")}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
             </div>
-            
+
             <div className="flex flex-col gap-2">
               <label htmlFor="password">Password</label>
-              <input 
-                className={tw("border-2 border-gray-300 rounded-md p-2", errors.password ? "border-red-500" : "")} 
-                type="password" 
-                id="password" 
-                {...register("password")} 
+              <input
+                className={tw("border-2 border-gray-300 rounded-md p-2", errors.password ? "border-red-500" : "")}
+                type="password"
+                id="password"
+                {...register("password")}
               />
               {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
             </div>
-            
-            <button 
-              className={tw("bg-blue-500 text-white rounded-md p-2 mt-2", isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600")} 
-              type="submit" 
+
+            <button
+              className={tw("bg-blue-500 text-white rounded-md p-2 mt-2", isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600")}
+              type="submit"
               disabled={isLoading}
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </button>
-            
+
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           </form>
 

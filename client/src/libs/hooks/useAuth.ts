@@ -31,6 +31,7 @@ export const useAuth = () => {
             
             setUser(authResponse.user);
             setIsAuthenticated(true);
+            
             navigate("/");
         } catch (err) {
             const axiosError = err as AxiosError<{ message: string }>;
@@ -52,6 +53,7 @@ export const useAuth = () => {
             
             setUser(authResponse.user);
             setIsAuthenticated(true);
+            
             navigate("/");
         } catch (err) {
             const axiosError = err as AxiosError<{ message: string }>;
@@ -102,6 +104,5 @@ export const useAuth = () => {
         login,
         register,
         logout,
-        checkAuth,
     };
 };

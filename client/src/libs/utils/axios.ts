@@ -5,19 +5,13 @@ export const api = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials: true, // Important for cookies
+    withCredentials: true,
 });
 
 
-
-// Add response interceptor to handle auth errors
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            // Redirect to login on 401 errors
-            window.location.href = "/login";
-        }
         return Promise.reject(error);
     }
 );

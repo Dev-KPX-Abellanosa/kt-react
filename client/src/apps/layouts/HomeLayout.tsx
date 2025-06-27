@@ -14,7 +14,7 @@ export default function HomeLayout() {
                         <div className="flex items-center space-x-8">
                             <h1 className="text-xl font-semibold text-gray-900">Contact Manager</h1>
                             <nav className="flex space-x-4">
-                                <Link
+                                {/* <Link
                                     to="/"
                                     className={`px-3 py-2 rounded-md text-sm font-medium ${
                                         location.pathname === '/' 
@@ -23,7 +23,7 @@ export default function HomeLayout() {
                                     }`}
                                 >
                                     Home
-                                </Link>
+                                </Link> */}
                                 <Link
                                     to="/contacts"
                                     className={`px-3 py-2 rounded-md text-sm font-medium ${

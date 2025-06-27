@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password, name } = req.body;
-        console.log("asds")
         // Check if user already exists
         const [existingUsers] = await pool.execute(
             'SELECT * FROM users WHERE email = ?',
@@ -150,6 +149,47 @@ export const me = async (req: Request, res: Response): Promise<void> => {
         res.json({ user });
     } catch (error) {
         console.error('Me error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const generateWebSocketToken = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // User data is already available from auth middleware
+        const user = req.user;
+        if (!user) {
+            res.status(401).json({ message: 'Not authenticated' });
+            return;
+        }
+
+        // Generate a secure WebSocket token with short expiration
+        const wsTokenSecret = process.env.WS_TOKEN_SECRET || process.env.JWT_SECRET || 'ws-secret-key';
+        const wsToken = jwt.sign(
+            { 
+                userId: user.userId, 
+                email: user.email,
+                type: 'websocket',
+                sessionId: user.userId // Use userId as sessionId
+            },
+            wsTokenSecret,
+            { expiresIn: '1h' } // Short expiration for security
+        );
+
+        // Set secure HTTP-only cookie for WebSocket token
+        res.cookie('ws_token', wsToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000, // 1 hour
+            path: '/'
+        });
+
+        res.json({ 
+            message: 'WebSocket token generated successfully',
+            expiresIn: '1h'
+        });
+    } catch (error) {
+        console.error('WebSocket token generation error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 }; 

@@ -8,6 +8,8 @@ export const useContacts = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+
+
     // Load initial contacts
     const loadContacts = useCallback(async () => {
         try {
@@ -28,27 +30,23 @@ export const useContacts = () => {
             switch (event.type) {
                 case 'contact_created':
                     return [...prevContacts, event.contact];
-                
                 case 'contact_updated':
-                    return prevContacts.map(contact => 
+                    return prevContacts.map(contact =>
                         contact.id === event.contact.id ? event.contact : contact
                     );
-                
                 case 'contact_deleted':
                     return prevContacts.filter(contact => contact.id !== event.contact.id);
-                
                 default:
                     return prevContacts;
             }
         });
-    }, []);
+    }, [setContacts]);
 
     // CRUD operations
     const createContact = useCallback(async (contactData: CreateContactRequest) => {
         try {
             setError(null);
             const newContact = await contactService.createContact(contactData);
-            // WebSocket will handle the update automatically
             return newContact;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create contact');
@@ -60,7 +58,6 @@ export const useContacts = () => {
         try {
             setError(null);
             const updatedContact = await contactService.updateContact(id, contactData);
-            // WebSocket will handle the update automatically
             return updatedContact;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update contact');
@@ -72,27 +69,24 @@ export const useContacts = () => {
         try {
             setError(null);
             await contactService.deleteContact(id);
-            // WebSocket will handle the update automatically
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete contact');
             throw err;
         }
     }, []);
 
-    // Initialize WebSocket connection and load contacts
+    // Initialize WebSocket and load contacts
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            wsService.connect(token);
-            wsService.onContactUpdate(handleContactUpdate);
-        }
-
+        // Set up WebSocket callback first
+        wsService.onContactUpdate(handleContactUpdate);
+        
+        // Then connect
+        wsService.connect();
+        
+        // Load contacts
         loadContacts();
 
-        return () => {
-            wsService.offContactUpdate(handleContactUpdate);
-            wsService.disconnect();
-        };
+
     }, [loadContacts, handleContactUpdate]);
 
     return {

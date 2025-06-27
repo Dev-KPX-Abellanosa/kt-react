@@ -26,12 +26,21 @@ app.use(cors({
     origin: 'http://localhost:5173', // Vite dev server
     credentials: true // Important for cookies
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
+
+// WebSocket test endpoint
+app.get('/api/ws-test', (req: Request, res: Response) => {
+    res.json({ 
+        message: 'WebSocket server is running',
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Protected route example
 app.get('/api/protected', authenticateToken, (req: Request, res: Response) => {

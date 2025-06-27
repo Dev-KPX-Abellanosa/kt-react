@@ -1,25 +1,35 @@
-import React, { useState } from 'react';
-import { useContacts } from '../../libs/hooks/useContacts';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { Contact } from '../../types/contact.types';
 import { tw } from '../../libs/tw';
 
 interface ContactListProps {
     onContactSelect?: (contact: Contact) => void;
     selectedContactId?: string;
+    contacts: Contact[];
+    loading: boolean;
+    error: string | null;
 }
 
-export const ContactList: React.FC<ContactListProps> = ({ 
-    onContactSelect, 
-    selectedContactId 
+export const ContactList: React.FC<ContactListProps> = ({
+    onContactSelect,
+    selectedContactId,
+    contacts,
+    error,
+    loading
 }) => {
-    const { contacts, loading, error } = useContacts();
+
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredContacts = contacts.filter(contact =>
+
+    useEffect(() => {
+        console.log(contacts)
+    }, [contacts]);
+
+    const filteredContacts = useMemo(() => contacts.filter(contact =>
         contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.phone?.includes(searchTerm)
-    );
+    ), [contacts, searchTerm]);
 
     if (loading) {
         return (
