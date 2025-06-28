@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import type { WebSocketContactEvent } from '../types/contact.types';
-import { api } from '../libs/utils/axios';
+import { api, getServerURL } from '../libs/utils/axios';
 import { hasWebSocketToken } from '../libs/utils/cookies';
 
 export class WebSocketService {
@@ -23,7 +23,7 @@ export class WebSocketService {
                 await this.refreshWebSocketToken();
             }
             
-            this.socket = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:3000', {
+            this.socket = io(getServerURL(), {
                 withCredentials: true, // Important for sending cookies
                 transports: ['websocket', 'polling'],
                 path: '/socket.io/' // Explicitly set the Socket.IO path

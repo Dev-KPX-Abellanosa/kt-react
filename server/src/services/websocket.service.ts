@@ -18,7 +18,7 @@ export class WebSocketService {
     constructor(server: HTTPServer) {
         this.io = new SocketIOServer(server, {
             cors: {
-                origin: process.env.CLIENT_URL || "http://localhost:5173",
+                origin: true, // Allow all origins in development
                 methods: ["GET", "POST"],
                 credentials: true // Important for cookies
             },
@@ -83,17 +83,10 @@ export class WebSocketService {
             const userId = socket.data.userId;
             const sessionId = socket.data.sessionId;
             
-            // Check if user already has a connection
-            const existingSocketId = this.userSockets.get(userId);
-            if (existingSocketId && existingSocketId !== socket.id) {
-                console.log(`User ${userId} already has a connection (${existingSocketId}), removing old one`);
-                this.userSockets.delete(userId);
-            }
-            
             this.userSockets.set(userId, socket.id);
             this.sessionSockets.set(sessionId, socket.id);
 
-            console.log(`User ${userId} connected with session ${sessionId} (total connections: ${this.userSockets.size})`);
+            console.log(`User ${userId} connected with session ${sessionId}`);
 
             socket.on('disconnect', () => {
                 this.userSockets.delete(userId);

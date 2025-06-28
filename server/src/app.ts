@@ -23,7 +23,7 @@ setWebSocketService(wsService);
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173', // Vite dev server
+    origin: true, // Allow all origins in development
     credentials: true // Important for cookies
 }));
 
@@ -51,7 +51,8 @@ app.get('/', (req, res) => {
     res.send('Hello from Express with TypeScript!');
 });
 
-server.listen(port, () => {
+server.listen(Number(port), '0.0.0.0', () => {
     console.log(`Server listening on port ${port}`);
+    console.log(`Server accessible at http://0.0.0.0:${port}`);
     console.log(`WebSocket server ready for connections`);
 });
