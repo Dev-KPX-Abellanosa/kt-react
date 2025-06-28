@@ -14,7 +14,6 @@ export const ContactDetail: React.FC<ContactDetailProps> = ({ contact, onClose, 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
 
-
     const handleUpdate = async (data: UpdateContactRequest) => {
         try {
             setLoading(true);
